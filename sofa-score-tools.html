@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOFA-Score – Umrechnungen</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --liver: #b5772f;    /* Leber / Bilirubin */
+    --renal: #2b6ca3;    /* Niere / Kreatinin */
+    --cardio: #a5333f;   /* Kreislauf / Katecholamine */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff; /* Basis für blasse Feldfarben */
+    --disclaimer-bg: #fff6e6;
+    --disclaimer-border: #e8c98a;
+    --disclaimer-ink: #5c4419;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --liver: #d99a52;
+      --renal: #6fa8d8;
+      --cardio: #e0707c;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+      --disclaimer-bg: #332a15;
+      --disclaimer-border: #6b5423;
+      --disclaimer-ink: #f0d9a0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page {
+    margin-bottom: 1.5rem;
+  }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page h1 {
+    font-size: 1.6rem;
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+  }
+
+  .disclaimer {
+    background: var(--disclaimer-bg);
+    border: 1px solid var(--disclaimer-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--disclaimer-ink);
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  .disclaimer strong { display: block; margin-bottom: 0.15rem; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, var(--ink));
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .card.liver  { --accent: var(--liver); }
+  .card.renal  { --accent: var(--renal); }
+  .card.cardio { --accent: var(--cardio); }
+
+  .card h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .card .source {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1 1 140px;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  input[type="number"], select {
+    font-size: 1rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    color-scheme: light dark;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  input[type="number"]:focus, select:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .card input[type="number"], .card select {
+    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+
+  /* Zahlenfeld-Pfeile ausblenden */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .result {
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--paper);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .result .value {
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .result .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+    .field { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">SOFA-Score · Kachel</div>
+    <h1>Umrechnungen für den SOFA-Score</h1>
+  </header>
+
+  <div class="disclaimer">
+    <strong>Hinweis</strong>
+    Alle Ergebnisse dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben und Ergebnis vor der Verwendung plausibilisieren.
+  </div>
+
+  <!-- Bilirubin -->
+  <section class="card liver">
+    <h2>Bilirubin</h2>
+    <p class="source">Umrechnungsfaktor 17,1 (Molmasse Bilirubin ≈ 584,66 g/mol), Standardfaktor der SI-Einheitenumrechnung.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="bili-input">Bilirubin (mg/dl)</label>
+        <input type="number" id="bili-input" step="0.01" min="0" inputmode="decimal">
+      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ergebnis</span>
+      <span class="value" id="bili-output">– µmol/l</span>
+    </div>
+  </section>
+
+  <!-- Kreatinin -->
+  <section class="card renal">
+    <h2>Kreatinin</h2>
+    <p class="source">Umrechnungsfaktor 88,4 (Molmasse Kreatinin ≈ 113,12 g/mol), Standardfaktor der SI-Einheitenumrechnung.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="crea-input">Kreatinin (mg/dl)</label>
+        <input type="number" id="crea-input" step="0.01" min="0" inputmode="decimal">
+      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ergebnis</span>
+      <span class="value" id="crea-output">– µmol/l</span>
+    </div>
+  </section>
+
+  <!-- Katecholamine -->
+  <section class="card cardio">
+    <h2>Katecholamine</h2>
+    <p class="source">Formel: µg/kg/min = (Laufrate [ml/h] × Verdünnung [mg/ml] × 1000) ÷ (60 × Körpergewicht [kg])</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="cat-rate">Perfusorlaufrate (ml/h)</label>
+        <input type="number" id="cat-rate" step="0.1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="cat-weight">Körpergewicht (kg)</label>
+        <input type="number" id="cat-weight" step="0.1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="cat-dilution">Verdünnung</label>
+        <select id="cat-dilution">
+          <option value="0.01">0,01 mg/ml</option>
+          <option value="0.1" selected>0,1 mg/ml</option>
+          <option value="0.2">0,2 mg/ml</option>
+        </select>
+      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ergebnis</span>
+      <span class="value" id="cat-output">– µg/kg/min</span>
+    </div>
+  </section>
+
+  <footer>
+    Rein clientseitige Berechnung – es werden keine Daten übertragen oder gespeichert.
+  </footer>
+
+</div>
+
+<script>
+  function fmt(num, decimals) {
+    if (!isFinite(num)) return null;
+    return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  // Bilirubin: mg/dl -> µmol/l (Faktor 17.1)
+  const biliInput = document.getElementById('bili-input');
+  const biliOutput = document.getElementById('bili-output');
+  biliInput.addEventListener('input', () => {
+    const val = parseFloat(biliInput.value);
+    if (isNaN(val) || val < 0) { biliOutput.textContent = '– µmol/l'; return; }
+    biliOutput.textContent = fmt(val * 17.1, 1) + ' µmol/l';
+  });
+
+  // Kreatinin: mg/dl -> µmol/l (Faktor 88.4)
+  const creaInput = document.getElementById('crea-input');
+  const creaOutput = document.getElementById('crea-output');
+  creaInput.addEventListener('input', () => {
+    const val = parseFloat(creaInput.value);
+    if (isNaN(val) || val < 0) { creaOutput.textContent = '– µmol/l'; return; }
+    creaOutput.textContent = fmt(val * 88.4, 1) + ' µmol/l';
+  });
+
+  // Katecholamine: µg/kg/min = (ml/h * mg/ml * 1000) / (60 * kg)
+  const catRate = document.getElementById('cat-rate');
+  const catWeight = document.getElementById('cat-weight');
+  const catDilution = document.getElementById('cat-dilution');
+  const catOutput = document.getElementById('cat-output');
+
+  function calcCatecholamine() {
+    const rate = parseFloat(catRate.value);
+    const weight = parseFloat(catWeight.value);
+    const dilution = parseFloat(catDilution.value);
+    if (isNaN(rate) || isNaN(weight) || rate < 0 || weight <= 0) {
+      catOutput.textContent = '– µg/kg/min';
+      return;
+    }
+    const result = (rate * dilution * 1000) / (60 * weight);
+    catOutput.textContent = fmt(result, 3) + ' µg/kg/min';
+  }
+
+  catRate.addEventListener('input', calcCatecholamine);
+  catWeight.addEventListener('input', calcCatecholamine);
+  catDilution.addEventListener('change', calcCatecholamine);
+</script>
+
+</body>
+</html>
