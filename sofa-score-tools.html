@@ -188,6 +188,54 @@
     font-size: 0.85rem;
   }
 
+  .score {
+    margin-top: 0.7rem;
+  }
+
+  .score-labels {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .score-labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .score-boxes {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .score-box {
+    flex: 1;
+    min-width: 0;
+    height: 2.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--muted) 15%, var(--paper));
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    padding: 0.2rem;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .score-box.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
   footer {
     text-align: center;
     font-size: 0.75rem;
@@ -228,6 +276,16 @@
       <span class="label">Ergebnis</span>
       <span class="value" id="bili-output">– µmol/l</span>
     </div>
+    <div class="score">
+      <div class="score-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+      <div class="score-boxes" id="bili-score">
+        <div class="score-box">&lt; 20</div>
+        <div class="score-box">20–32</div>
+        <div class="score-box">33–101</div>
+        <div class="score-box">102–204</div>
+        <div class="score-box">&gt; 204</div>
+      </div>
+    </div>
   </section>
 
   <!-- Kreatinin -->
@@ -243,6 +301,16 @@
     <div class="result">
       <span class="label">Ergebnis</span>
       <span class="value" id="crea-output">– µmol/l</span>
+    </div>
+    <div class="score">
+      <div class="score-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+      <div class="score-boxes" id="crea-score">
+        <div class="score-box">&lt; 110</div>
+        <div class="score-box">110–170</div>
+        <div class="score-box">171–299</div>
+        <div class="score-box">300–440</div>
+        <div class="score-box">&gt; 440</div>
+      </div>
     </div>
   </section>
 
@@ -286,13 +354,32 @@
     return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
+  // Ermittelt den Index (0-4) der erreichten Punktzahl anhand der unteren Grenzwerte
+  function bandIndex(val, thresholds) {
+    for (let i = thresholds.length - 1; i >= 0; i--) {
+      if (val >= thresholds[i]) return i + 1;
+    }
+    return 0;
+  }
+
+  function updateScore(containerId, val) {
+    const boxes = document.querySelectorAll('#' + containerId + ' .score-box');
+    boxes.forEach(b => b.classList.remove('active'));
+    if (isNaN(val) || val < 0) return;
+    const thresholds = containerId === 'bili-score' ? [20, 33, 102, 204] : [110, 171, 300, 440];
+    const idx = bandIndex(val, thresholds);
+    boxes[idx].classList.add('active');
+  }
+
   // Bilirubin: mg/dl -> µmol/l (Faktor 17.1)
   const biliInput = document.getElementById('bili-input');
   const biliOutput = document.getElementById('bili-output');
   biliInput.addEventListener('input', () => {
     const val = parseFloat(biliInput.value);
+    const converted = val * 17.1;
+    updateScore('bili-score', converted);
     if (isNaN(val) || val < 0) { biliOutput.textContent = '– µmol/l'; return; }
-    biliOutput.textContent = fmt(val * 17.1, 1) + ' µmol/l';
+    biliOutput.textContent = fmt(converted, 1) + ' µmol/l';
   });
 
   // Kreatinin: mg/dl -> µmol/l (Faktor 88.4)
@@ -300,8 +387,10 @@
   const creaOutput = document.getElementById('crea-output');
   creaInput.addEventListener('input', () => {
     const val = parseFloat(creaInput.value);
+    const converted = val * 88.4;
+    updateScore('crea-score', converted);
     if (isNaN(val) || val < 0) { creaOutput.textContent = '– µmol/l'; return; }
-    creaOutput.textContent = fmt(val * 88.4, 1) + ' µmol/l';
+    creaOutput.textContent = fmt(converted, 1) + ' µmol/l';
   });
 
   // Katecholamine: µg/kg/min = (ml/h * mg/ml * 1000) / (60 * kg)
