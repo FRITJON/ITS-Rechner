@@ -243,6 +243,30 @@
     margin-top: 1.5rem;
   }
 
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+  }
+
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--muted) 12%, var(--card));
+  }
+
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
   @media (max-width: 420px) {
     header.page h1 { font-size: 1.35rem; }
     .field { flex: 1 1 100%; }
@@ -342,8 +366,10 @@
     </div>
   </section>
 
+  <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
+
   <footer>
-    Rein clientseitige Berechnung – es werden keine Daten übertragen oder gespeichert.
+    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
   </footer>
 
 </div>
@@ -414,6 +440,22 @@
   catRate.addEventListener('input', calcCatecholamine);
   catWeight.addEventListener('input', calcCatecholamine);
   catDilution.addEventListener('change', calcCatecholamine);
+
+  // Alle Felder zurücksetzen
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    biliInput.value = '';
+    creaInput.value = '';
+    catRate.value = '';
+    catWeight.value = '';
+    catDilution.selectedIndex = 1; // Standard: 0,1 mg/ml
+
+    biliOutput.textContent = '– µmol/l';
+    creaOutput.textContent = '– µmol/l';
+    catOutput.textContent = '– µg/kg/min';
+
+    updateScore('bili-score', NaN);
+    updateScore('crea-score', NaN);
+  });
 </script>
 
 </body>
