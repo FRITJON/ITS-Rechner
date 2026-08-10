@@ -236,6 +236,23 @@
     font-weight: 700;
   }
 
+  .cat-box {
+    flex-direction: column;
+    height: auto;
+    min-height: 3.4rem;
+    gap: 0.2rem;
+    padding: 0.5rem 0.4rem;
+  }
+
+  .cat-box .cat-box-title {
+    font-size: 0.72rem;
+    font-weight: 400;
+  }
+
+  .cat-box .cat-box-sub {
+    font-size: 0.7rem;
+  }
+
   footer {
     text-align: center;
     font-size: 0.75rem;
@@ -364,6 +381,19 @@
       <span class="label">Ergebnis</span>
       <span class="value" id="cat-output">– µg/kg/min</span>
     </div>
+    <div class="score">
+      <div class="score-labels"><span>3</span><span>4</span></div>
+      <div class="score-boxes" id="cat-score">
+        <div class="score-box cat-box">
+          <span class="cat-box-title">mittlere Katecholamin-Dosis</span>
+          <span class="cat-box-sub">≤0,1 µg/kg/min</span>
+        </div>
+        <div class="score-box cat-box">
+          <span class="cat-box-title">hohe Katecholamin-Dosis</span>
+          <span class="cat-box-sub">&gt;0,1 µg/kg/min</span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
@@ -429,12 +459,15 @@
     const rate = parseFloat(catRate.value);
     const weight = parseFloat(catWeight.value);
     const dilution = parseFloat(catDilution.value);
+    const catBoxes = document.querySelectorAll('#cat-score .score-box');
+    catBoxes.forEach(b => b.classList.remove('active'));
     if (isNaN(rate) || isNaN(weight) || rate < 0 || weight <= 0) {
       catOutput.textContent = '– µg/kg/min';
       return;
     }
     const result = (rate * dilution * 1000) / (60 * weight);
     catOutput.textContent = fmt(result, 3) + ' µg/kg/min';
+    catBoxes[result <= 0.1 ? 0 : 1].classList.add('active');
   }
 
   catRate.addEventListener('input', calcCatecholamine);
@@ -455,6 +488,7 @@
 
     updateScore('bili-score', NaN);
     updateScore('crea-score', NaN);
+    document.querySelectorAll('#cat-score .score-box').forEach(b => b.classList.remove('active'));
   });
 </script>
 
