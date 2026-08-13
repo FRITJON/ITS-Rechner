@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIVA-Rechner</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --patient: #3f7d5c;   /* Patientendaten / IBW */
+    --propofol: #6a4c93;  /* Propofol */
+    --remi: #c1652f;      /* Remifentanil */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff; /* Basis für blasse Feldfarben */
+    --disclaimer-bg: #fff6e6;
+    --disclaimer-border: #e8c98a;
+    --disclaimer-ink: #5c4419;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --patient: #63b184;
+      --propofol: #a288c9;
+      --remi: #e0925c;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+      --disclaimer-bg: #332a15;
+      --disclaimer-border: #6b5423;
+      --disclaimer-ink: #f0d9a0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page {
+    margin-bottom: 1.5rem;
+  }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page h1 {
+    font-size: 1.6rem;
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+  }
+
+  .disclaimer {
+    background: var(--disclaimer-bg);
+    border: 1px solid var(--disclaimer-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--disclaimer-ink);
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  .disclaimer strong { display: block; margin-bottom: 0.15rem; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, var(--ink));
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .card.patient  { --accent: var(--patient); }
+  .card.propofol { --accent: var(--propofol); }
+  .card.remi     { --accent: var(--remi); }
+
+  .card h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .card .source {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1 1 140px;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  input[type="number"], select {
+    font-size: 1rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    color-scheme: light dark;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  input[type="number"]:focus, select:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .card input[type="number"], .card select {
+    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+
+  /* Zahlenfeld-Pfeile ausblenden */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .ibw-display {
+    font-size: 1rem;
+    line-height: 1.2;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--accent);
+    font-weight: 700;
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    cursor: default;
+    text-align: right;
+  }
+
+  .field-narrow { flex: 0.7 1 100px; }
+  .field-wide { flex: 1.6 1 170px; }
+  .field-button { flex: 1.4 1 200px; }
+
+  .custom-weight-field { display: none; }
+  .custom-weight-field.visible { display: flex; }
+
+  .result {
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--paper);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .result .value {
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .result .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .toggle-btn {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .toggle-btn:hover {
+    background: color-mix(in srgb, var(--accent) 18%, var(--card));
+  }
+
+  .toggle-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+  }
+
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--muted) 12%, var(--card));
+  }
+
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+    .field { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">TIVA · Kachel</div>
+    <h1>TIVA-Rechner</h1>
+  </header>
+
+  <!-- Patientendaten / IBW -->
+  <section class="card patient">
+    <h2>Patientendaten</h2>
+    <p class="source">Ideales Körpergewicht (IBW) nach Devine-Formel: Männlich = 50 + 0,91 × (Größe [cm] − 152,4); Weiblich = 45,5 + 0,91 × (Größe [cm] − 152,4).</p>
+    <div class="field-row">
+      <div class="field field-narrow">
+        <label for="sex-input">Geschlecht</label>
+        <select id="sex-input">
+          <option value="female" selected>weiblich</option>
+          <option value="male">männlich</option>
+        </select>
+      </div>
+      <div class="field field-narrow">
+        <label for="height-input">Körpergröße (cm)</label>
+        <input type="number" id="height-input" step="1" min="0" inputmode="decimal">
+      </div>
+      <div class="field field-wide">
+        <label for="ibw-output">Ideales Körpergewicht (IBW)</label>
+        <div class="ibw-display" id="ibw-output">– kg</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field field-button">
+        <button type="button" id="custom-weight-toggle" class="toggle-btn">Individuelles Dosiergewicht</button>
+      </div>
+      <div class="field field-wide custom-weight-field" id="custom-weight-field">
+        <label for="custom-weight-input">Individuelles Dosiergewicht (kg)</label>
+        <input type="number" id="custom-weight-input" step="0.1" min="0" inputmode="decimal">
+      </div>
+    </div>
+    <p class="hint" id="dosing-weight-hint">Grundlage für die Dosisberechnung unten: IBW (sofern kein individuelles Dosiergewicht angegeben ist).</p>
+  </section>
+
+  <!-- Propofol -->
+  <section class="card propofol">
+    <h2>Propofol</h2>
+    <p class="source">1 % = 10 mg/ml, 2 % = 20 mg/ml. Formel: ml/h = (mg/kg/h × Dosiergewicht [kg]) ÷ Konzentration [mg/ml]</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="propofol-conc">Konzentration</label>
+        <select id="propofol-conc">
+          <option value="10">1 % (10 mg/ml)</option>
+          <option value="20">2 % (20 mg/ml)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="propofol-mgkgh">Dosierung (mg/kg/h)</label>
+        <input type="number" id="propofol-mgkgh" step="0.1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="propofol-mlh">Laufrate (ml/h)</label>
+        <input type="number" id="propofol-mlh" step="0.1" min="0" inputmode="decimal">
+      </div>
+    </div>
+  </section>
+
+  <!-- Remifentanil -->
+  <section class="card remi">
+    <h2>Remifentanil</h2>
+    <p class="source">Formel: ml/h = (µg/kg/min × Dosiergewicht [kg] × 60) ÷ Konzentration [µg/ml]</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="remi-dilution">Verdünnung</label>
+        <select id="remi-dilution">
+          <option value="20">1 mg/50 ml (20 µg/ml)</option>
+          <option value="40" selected>2 mg/50 ml (40 µg/ml)</option>
+          <option value="100">5 mg/50 ml (100 µg/ml)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="remi-ugkgmin">Dosierung (µg/kg/min)</label>
+        <input type="number" id="remi-ugkgmin" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="remi-mlh">Laufrate (ml/h)</label>
+        <input type="number" id="remi-mlh" step="0.1" min="0" inputmode="decimal">
+      </div>
+    </div>
+  </section>
+
+  <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
+
+  <div class="disclaimer">
+    <strong>Hinweis</strong>
+    Alle berechneten Dosierungen und Laufraten dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben, Verdünnungen, Dosiergewicht und Ergebnisse vor der Anwendung am Patienten sorgfältig prüfen und plausibilisieren.
+  </div>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
+  </footer>
+
+</div>
+
+<script>
+  function fmt(num, decimals) {
+    if (!isFinite(num)) return null;
+    return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  // Für <input type="number">-Felder: Punkt statt Komma als Dezimaltrennzeichen,
+  // da der Browser Werte mit Komma sonst als ungültig verwirft und das Feld leert.
+  function roundStr(num, decimals) {
+    if (!isFinite(num)) return '';
+    return num.toFixed(decimals);
+  }
+
+  // ---- Patientendaten / IBW ----
+  const sexInput = document.getElementById('sex-input');
+  const heightInput = document.getElementById('height-input');
+  const ibwOutput = document.getElementById('ibw-output');
+
+  const customWeightToggle = document.getElementById('custom-weight-toggle');
+  const customWeightRow = document.getElementById('custom-weight-field');
+  const customWeightInput = document.getElementById('custom-weight-input');
+  const dosingWeightHint = document.getElementById('dosing-weight-hint');
+
+  let ibwValue = NaN;
+
+  function calcIBW() {
+    const heightCm = parseFloat(heightInput.value);
+    if (isNaN(heightCm) || heightCm <= 0) {
+      ibwValue = NaN;
+      ibwOutput.textContent = '– kg';
+      updateDosingHint();
+      return;
+    }
+    const base = sexInput.value === 'male' ? 50 : 45.5;
+    ibwValue = base + 0.91 * (heightCm - 152.4);
+    if (ibwValue < 0) ibwValue = NaN;
+    ibwOutput.textContent = isNaN(ibwValue) ? '– kg' : fmt(ibwValue, 1) + ' kg';
+    updateDosingHint();
+  }
+
+  function getDosingWeight() {
+    if (customWeightRow.classList.contains('visible')) {
+      const cw = parseFloat(customWeightInput.value);
+      if (!isNaN(cw) && cw > 0) return cw;
+    }
+    if (!isNaN(ibwValue) && ibwValue > 0) return ibwValue;
+    return null;
+  }
+
+  function updateDosingHint() {
+    const usingCustom = customWeightRow.classList.contains('visible') &&
+      !isNaN(parseFloat(customWeightInput.value)) && parseFloat(customWeightInput.value) > 0;
+    if (usingCustom) {
+      dosingWeightHint.textContent = 'Grundlage für die Dosisberechnung unten: individuelles Dosiergewicht.';
+    } else {
+      dosingWeightHint.textContent = 'Grundlage für die Dosisberechnung unten: IBW (sofern kein individuelles Dosiergewicht angegeben ist).';
+    }
+
+    if (!getDosingWeight()) {
+      // Kein Gewicht verfügbar -> Laufraten können nicht berechnet werden, Dosierung bleibt aber erhalten
+      clearPropofolRate();
+      clearRemiRate();
+      return;
+    }
+
+    // Bestehende Dosis/kg-Werte auf (neues) Gewicht anwenden -> Laufrate (neu) berechnen
+    recalcPropofolFromDose();
+    recalcRemiFromDose();
+  }
+
+  sexInput.addEventListener('change', calcIBW);
+  heightInput.addEventListener('input', calcIBW);
+
+  customWeightToggle.addEventListener('click', () => {
+    const isVisible = customWeightRow.classList.toggle('visible');
+    if (!isVisible) {
+      customWeightInput.value = '';
+    }
+    updateDosingHint();
+  });
+
+  customWeightInput.addEventListener('input', updateDosingHint);
+
+  // ---- Propofol ----
+  const propofolConc = document.getElementById('propofol-conc');
+  const propofolMgkgh = document.getElementById('propofol-mgkgh');
+  const propofolMlh = document.getElementById('propofol-mlh');
+  let propofolLock = false;
+
+  function clearPropofolRate() {
+    propofolLock = true;
+    propofolMlh.value = '';
+    propofolLock = false;
+  }
+
+  function recalcPropofolFromDose() {
+    if (propofolLock) return;
+    const dose = parseFloat(propofolMgkgh.value);
+    const weight = getDosingWeight();
+    const conc = parseFloat(propofolConc.value);
+    if (isNaN(dose) || dose < 0) {
+      propofolMlh.value = '';
+      return;
+    }
+    if (!weight) {
+      // Dosierung gültig, aber kein Gewicht vorhanden -> Laufrate kann (noch) nicht berechnet werden
+      propofolMlh.value = '';
+      return;
+    }
+    propofolLock = true;
+    const mlh = (dose * weight) / conc;
+    propofolMlh.value = roundStr(mlh, 2);
+    propofolLock = false;
+  }
+
+  function recalcPropofolFromRate() {
+    if (propofolLock) return;
+    const mlh = parseFloat(propofolMlh.value);
+    const weight = getDosingWeight();
+    const conc = parseFloat(propofolConc.value);
+    if (!weight) {
+      // Ohne Gewicht kann aus der Laufrate keine Dosierung berechnet werden -> Dosierungsfeld bleibt unverändert
+      return;
+    }
+    if (isNaN(mlh) || mlh < 0) {
+      propofolMgkgh.value = '';
+      return;
+    }
+    propofolLock = true;
+    const dose = (mlh * conc) / weight;
+    propofolMgkgh.value = roundStr(dose, 3);
+    propofolLock = false;
+  }
+
+  propofolMgkgh.addEventListener('input', recalcPropofolFromDose);
+  propofolMlh.addEventListener('input', recalcPropofolFromRate);
+  propofolConc.addEventListener('change', () => {
+    // Konzentration geändert: Dosis/kg als Grundlage beibehalten, ml/h neu berechnen
+    if (propofolMgkgh.value !== '') {
+      recalcPropofolFromDose();
+    } else if (propofolMlh.value !== '') {
+      recalcPropofolFromRate();
+    }
+  });
+
+  // ---- Remifentanil ----
+  const remiDilution = document.getElementById('remi-dilution');
+  const remiUgkgmin = document.getElementById('remi-ugkgmin');
+  const remiMlh = document.getElementById('remi-mlh');
+  let remiLock = false;
+
+  function clearRemiRate() {
+    remiLock = true;
+    remiMlh.value = '';
+    remiLock = false;
+  }
+
+  function recalcRemiFromDose() {
+    if (remiLock) return;
+    const dose = parseFloat(remiUgkgmin.value);
+    const weight = getDosingWeight();
+    const conc = parseFloat(remiDilution.value);
+    if (isNaN(dose) || dose < 0) {
+      remiMlh.value = '';
+      return;
+    }
+    if (!weight) {
+      // Dosierung gültig, aber kein Gewicht vorhanden -> Laufrate kann (noch) nicht berechnet werden
+      remiMlh.value = '';
+      return;
+    }
+    remiLock = true;
+    const mlh = (dose * weight * 60) / conc;
+    remiMlh.value = roundStr(mlh, 2);
+    remiLock = false;
+  }
+
+  function recalcRemiFromRate() {
+    if (remiLock) return;
+    const mlh = parseFloat(remiMlh.value);
+    const weight = getDosingWeight();
+    const conc = parseFloat(remiDilution.value);
+    if (!weight) {
+      // Ohne Gewicht kann aus der Laufrate keine Dosierung berechnet werden -> Dosierungsfeld bleibt unverändert
+      return;
+    }
+    if (isNaN(mlh) || mlh < 0) {
+      remiUgkgmin.value = '';
+      return;
+    }
+    remiLock = true;
+    const dose = (mlh * conc) / (60 * weight);
+    remiUgkgmin.value = roundStr(dose, 3);
+    remiLock = false;
+  }
+
+  remiUgkgmin.addEventListener('input', recalcRemiFromDose);
+  remiMlh.addEventListener('input', recalcRemiFromRate);
+  remiDilution.addEventListener('change', () => {
+    if (remiUgkgmin.value !== '') {
+      recalcRemiFromDose();
+    } else if (remiMlh.value !== '') {
+      recalcRemiFromRate();
+    }
+  });
+
+  // ---- Alle Felder zurücksetzen ----
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    sexInput.selectedIndex = 0;
+    heightInput.value = '';
+    ibwValue = NaN;
+    ibwOutput.textContent = '– kg';
+
+    customWeightRow.classList.remove('visible');
+    customWeightInput.value = '';
+
+    propofolConc.selectedIndex = 0;
+    propofolMgkgh.value = '';
+    propofolMlh.value = '';
+
+    remiDilution.value = '40';
+    remiUgkgmin.value = '';
+    remiMlh.value = '';
+
+    updateDosingHint();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klinische Rechner-Tools · Anästhesie</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --liver: #b5772f;    /* SOFA-Tile Akzent */
+    --renal: #2b6ca3;    /* TIVA-Tile Akzent */
+    --cardio: #a5333f;
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --liver: #d99a52;
+      --renal: #6fa8d8;
+      --cardio: #e0707c;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page {
+    margin-bottom: 1.5rem;
+  }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page h1 {
+    font-size: 1.6rem;
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.1rem;
+  }
+
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, var(--ink));
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .tile:not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+
+  .tile:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .tile.sofa   { --accent: var(--liver); }
+  .tile.tiva   { --accent: var(--renal); }
+
+  .tile h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .tile p.desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .tile.disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+
+    .tiles { grid-template-columns: 1fr; gap: 0.6rem; }
+
+    .tile {
+      padding: 0.7rem 0.9rem;
+      gap: 0.2rem;
+      border-left-width: 4px;
+    }
+
+    .tile h2 { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">Anästhesie · Rechner-Tools</div>
+    <h1>Klinische Rechner-Tools</h1>
+  </header>
+
+  <div class="tiles">
+
+    <a class="tile sofa" href="sofa-score-tools.html">
+      <h2>SOFA-Score</h2>
+      <p class="desc">Umrechnungen Bilirubin, Kreatinin und Katecholamine für die SOFA-Score-Erhebung.</p>
+    </a>
+
+    <a class="tile tiva" href="tiva-rechner.html">
+      <h2>TIVA-Rechner</h2>
+      <p class="desc">Rechner für die totale intravenöse Anästhesie.</p>
+    </a>
+
+  </div>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
+  </footer>
+
+</div>
+</body>
+</html>
