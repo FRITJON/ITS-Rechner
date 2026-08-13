@@ -65,6 +65,11 @@
     color: var(--muted);
     font-weight: 600;
   }
+  
+    header.page .eyebrow a {
+  	color: var(--muted);
+  	text-decoration: none;
+  }
 
   header.page h1 {
     font-size: 1.6rem;
@@ -163,34 +168,22 @@
     appearance: textfield;
   }
 
-  .ibw-display {
-    font-size: 1rem;
-    line-height: 1.2;
-    padding: 0.55rem 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--paper);
-    color: var(--accent);
-    font-weight: 700;
-    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
-    cursor: default;
-    text-align: right;
+  .custom-weight-row {
+    display: none;
+    margin-top: 0.75rem;
   }
 
-  .field-narrow { flex: 0.7 1 100px; }
-  .field-wide { flex: 1.6 1 170px; }
-  .field-button { flex: 1.4 1 200px; }
-
-  .custom-weight-field { display: none; }
-  .custom-weight-field.visible { display: flex; }
+  .custom-weight-row.visible {
+    display: flex;
+  }
 
   .result {
-    margin-top: 0.9rem;
     padding: 0.7rem 0.9rem;
     background: var(--paper);
     border-radius: 6px;
     font-size: 0.95rem;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
@@ -209,11 +202,104 @@
     font-size: 0.85rem;
   }
 
-  .toggle-btn {
-    display: block;
-    width: 100%;
+  .field-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
     padding: 0.55rem 0.6rem;
-    font-size: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+  }
+
+  .field-inline:focus-within {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .field-inline-label {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--muted);
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .field-inline input[type="number"] {
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 12ch;
+    flex: 0 0 auto;
+    text-align: right;
+    color: var(--ink);
+    caret-color: var(--ink);
+  }
+
+  .field-inline input[type="number"]:focus {
+    outline: none;
+  }
+
+  /* Erste Zeile im Patientendaten-Kasten: exakte Breitenverteilung nur per Grid (siehe Media Query unten) */
+
+  @media (min-width: 421px) {
+    /* Zeile 1: exakte Breitenverteilung 0,25 / 0,25 / 0,5 über CSS Grid */
+    .patient-row-1 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    .patient-row-1 input[type="number"], .patient-row-1 select {
+      line-height: 1.2;
+    }
+
+    .field-ibw.result {
+      padding: 0.55rem 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .field-ibw.result .value {
+      font-size: 1rem;
+    }
+
+    /* Zeile 2: identisches Spaltenraster wie Zeile 1, damit die Lücke exakt an derselben Position liegt */
+    .custom-weight-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+      gap: 0.75rem;
+      align-items: end;
+      margin-top: 0.85rem;
+    }
+
+    .custom-weight-line .toggle-btn {
+      display: block;
+      width: 100%;
+      grid-column: 1 / 3;
+      padding: 0.55rem 0.6rem;
+      font-size: 1rem;
+      line-height: 1.2;
+      margin-top: 0;
+    }
+
+    .custom-weight-line .custom-weight-row {
+      grid-column: 3 / 4;
+      min-width: 0;
+      margin-top: 0;
+    }
+
+    .custom-weight-line .custom-weight-row .field {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  .toggle-btn {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     font-family: inherit;
     color: var(--accent);
@@ -221,6 +307,7 @@
     border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
     border-radius: 6px;
     cursor: pointer;
+    margin-top: 0.85rem;
   }
 
   .toggle-btn:hover {
@@ -272,6 +359,48 @@
   @media (max-width: 420px) {
     header.page h1 { font-size: 1.35rem; }
     .field { flex: 1 1 100%; }
+
+    .toggle-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Dosiergewicht-Feld mobil wie im ursprünglichen Design: Label oberhalb, volle Breite */
+    .field-inline {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.3rem;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .field-inline-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: normal;
+    }
+
+    .field-inline input[type="number"] {
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+      background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+      border-radius: 6px;
+      padding: 0.55rem 0.6rem;
+      width: 100%;
+      text-align: left;
+    }
+
+    .field-inline:focus-within {
+      outline: none;
+    }
+
+    .field-inline input[type="number"]:focus {
+      outline: 2px solid var(--focus);
+      outline-offset: 1px;
+    }
   }
 </style>
 </head>
@@ -279,7 +408,7 @@
 <div class="wrap">
 
   <header class="page">
-    <div class="eyebrow">TIVA · Kachel</div>
+    <div class="eyebrow"><a href="index.html">← Zurück</a></div>
     <h1>TIVA-Rechner</h1>
   </header>
 
@@ -287,31 +416,33 @@
   <section class="card patient">
     <h2>Patientendaten</h2>
     <p class="source">Ideales Körpergewicht (IBW) nach Devine-Formel: Männlich = 50 + 0,91 × (Größe [cm] − 152,4); Weiblich = 45,5 + 0,91 × (Größe [cm] − 152,4).</p>
-    <div class="field-row">
-      <div class="field field-narrow">
+    <div class="field-row patient-row-1">
+      <div class="field field-geschlecht">
         <label for="sex-input">Geschlecht</label>
         <select id="sex-input">
           <option value="female" selected>weiblich</option>
           <option value="male">männlich</option>
         </select>
       </div>
-      <div class="field field-narrow">
+      <div class="field field-groesse">
         <label for="height-input">Körpergröße (cm)</label>
         <input type="number" id="height-input" step="1" min="0" inputmode="decimal">
       </div>
-      <div class="field field-wide">
-        <label for="ibw-output">Ideales Körpergewicht (IBW)</label>
-        <div class="ibw-display" id="ibw-output">– kg</div>
+      <div class="field field-ibw result">
+        <span class="label">Ideales Körpergewicht (IBW)</span>
+        <span class="value" id="ibw-output">– kg</span>
       </div>
     </div>
 
-    <div class="field-row">
-      <div class="field field-button">
-        <button type="button" id="custom-weight-toggle" class="toggle-btn">Individuelles Dosiergewicht</button>
-      </div>
-      <div class="field field-wide custom-weight-field" id="custom-weight-field">
-        <label for="custom-weight-input">Individuelles Dosiergewicht (kg)</label>
-        <input type="number" id="custom-weight-input" step="0.1" min="0" inputmode="decimal">
+    <div class="custom-weight-line">
+      <button type="button" id="custom-weight-toggle" class="toggle-btn">Individuelles Dosiergewicht festlegen</button>
+      <div class="field-row custom-weight-row" id="custom-weight-row">
+        <div class="field">
+          <div class="field-inline">
+            <span class="field-inline-label">Individuelles Dosiergewicht (kg)</span>
+            <input type="number" id="custom-weight-input" step="0.1" min="0" inputmode="decimal" aria-label="Individuelles Dosiergewicht in kg">
+          </div>
+        </div>
       </div>
     </div>
     <p class="hint" id="dosing-weight-hint">Grundlage für die Dosisberechnung unten: IBW (sofern kein individuelles Dosiergewicht angegeben ist).</p>
@@ -396,7 +527,7 @@
   const ibwOutput = document.getElementById('ibw-output');
 
   const customWeightToggle = document.getElementById('custom-weight-toggle');
-  const customWeightRow = document.getElementById('custom-weight-field');
+  const customWeightRow = document.getElementById('custom-weight-row');
   const customWeightInput = document.getElementById('custom-weight-input');
   const dosingWeightHint = document.getElementById('dosing-weight-hint');
 
@@ -454,6 +585,8 @@
     const isVisible = customWeightRow.classList.toggle('visible');
     if (!isVisible) {
       customWeightInput.value = '';
+    } else {
+      customWeightInput.focus();
     }
     updateDosingHint();
   });

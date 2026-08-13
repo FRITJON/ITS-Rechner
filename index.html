@@ -13,6 +13,7 @@
     --liver: #b5772f;    /* SOFA-Tile Akzent */
     --renal: #2b6ca3;    /* TIVA-Tile Akzent */
     --cardio: #a5333f;
+    --serum: #2f7a5c;    /* Osmolalitäts-Tile Akzent */
     --muted: #5a6b73;
     --focus: #1c5b8a;
     --mix-base: #ffffff;
@@ -27,6 +28,7 @@
       --liver: #d99a52;
       --renal: #6fa8d8;
       --cardio: #e0707c;
+      --serum: #5cba95;
       --muted: #93a3ac;
       --focus: #7bb4e6;
       --mix-base: #1b232a;
@@ -98,6 +100,7 @@
 
   .tile.sofa   { --accent: var(--liver); }
   .tile.tiva   { --accent: var(--renal); }
+  .tile.osmo   { --accent: var(--serum); }
 
   .tile h2 {
     font-size: 1.25rem;
@@ -115,13 +118,6 @@
   .tile.disabled {
     opacity: 0.6;
     cursor: default;
-  }
-
-  footer {
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 1.5rem;
   }
 
   @media (max-width: 420px) {
@@ -143,7 +139,7 @@
 <div class="wrap">
 
   <header class="page">
-    <div class="eyebrow">Anästhesie · Rechner-Tools</div>
+    <div class="eyebrow">EvK Witten · Anästhesie</div>
     <h1>Klinische Rechner-Tools</h1>
   </header>
 
@@ -159,11 +155,12 @@
       <p class="desc">Rechner für die totale intravenöse Anästhesie.</p>
     </a>
 
-  </div>
+    <a class="tile osmo" href="osmolalitaets-rechner.html">
+      <h2>Osmolalität</h2>
+      <p class="desc">Umrechnungen für Serum- und Harn-Osmolalität.</p>
+    </a>
 
-  <footer>
-    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
-  </footer>
+  </div>
 
 </div>
 </body>

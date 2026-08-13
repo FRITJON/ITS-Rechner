@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Osmolalität – Umrechnungen</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --serum: #2f7a5c;    /* Serum-Osmolalität */
+    --urin: #7a5c9e;     /* Harn-Osmolalität */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff; /* Basis für blasse Feldfarben */
+    --disclaimer-bg: #fff6e6;
+    --disclaimer-border: #e8c98a;
+    --disclaimer-ink: #5c4419;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --serum: #5cba95;
+      --urin: #b09bd6;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+      --disclaimer-bg: #332a15;
+      --disclaimer-border: #6b5423;
+      --disclaimer-ink: #f0d9a0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page {
+    margin-bottom: 1.5rem;
+  }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  
+    header.page .eyebrow a {
+  	color: var(--muted);
+  	text-decoration: none;
+  }
+
+  header.page h1 {
+    font-size: 1.6rem;
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+  }
+
+  .disclaimer {
+    background: var(--disclaimer-bg);
+    border: 1px solid var(--disclaimer-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--disclaimer-ink);
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  .disclaimer strong { display: block; margin-bottom: 0.15rem; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, var(--ink));
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .card.serum { --accent: var(--serum); }
+  .card.urin  { --accent: var(--urin); }
+
+  .card h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .card .source {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1 1 140px;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  input[type="number"], select {
+    font-size: 1rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    color-scheme: light dark;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  input[type="number"]:focus, select:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  input[type="number"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .card input[type="number"], .card select {
+    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+
+  /* Zahlenfeld-Pfeile ausblenden */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .result {
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--paper);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .result .value {
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .result .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .note {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .note.correction {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .pending-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 16%, var(--mix-base));
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+  }
+
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--muted) 12%, var(--card));
+  }
+
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+    .field { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow"><a href="index.html">← Zurück</a></div>
+    <h1>Umrechnungen für die Osmolalität</h1>
+  </header>
+
+  <!-- Serum-Osmolalität -->
+  <section class="card serum">
+    <h2>Serum-Osmolalität</h2>
+    <p class="source">Formel: Serum-Osmolalität (kalkuliert, mOsmol/kgH<sub>2</sub>O) = 1,86 × Na⁺ + (Glucose/18) + (Harnstoff/6) + 9</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="serum-na">Na⁺ im Serum (mmol/l)</label>
+        <input type="number" id="serum-na" step="0.1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="serum-glucose">Glucose im Serum (mg/dl)</label>
+        <input type="number" id="serum-glucose" step="1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="serum-harnstoff">Harnstoff im Serum (mg/dl)</label>
+        <input type="number" id="serum-harnstoff" step="1" min="0" inputmode="decimal">
+      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ergebnis</span>
+      <span class="value" id="serum-output">– mOsmol/kgH<sub>2</sub>O</span>
+    </div>
+    <p class="note correction" id="serum-correction-note" style="display:none;"></p>
+  </section>
+
+  <!-- Harn-Osmolalität -->
+  <section class="card urin">
+    <h2>Harn-Osmolalität <span class="pending-badge">Formel folgt</span></h2>
+    <p class="source">Die Berechnungsformel liegt noch nicht vor. Die Felder sind bereits angelegt, die Berechnung folgt, sobald die Formel geliefert wird.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="urin-na">Na⁺ im Urin</label>
+        <input type="number" id="urin-na" step="0.1" min="0" inputmode="decimal" disabled>
+      </div>
+      <div class="field">
+        <label for="urin-kalium">K⁺ im Urin</label>
+        <input type="number" id="urin-kalium" step="0.1" min="0" inputmode="decimal" disabled>
+      </div>
+      <div class="field">
+        <label for="urin-harnstoff">Harnstoff im Urin</label>
+        <input type="number" id="urin-harnstoff" step="0.1" min="0" inputmode="decimal" disabled>
+      </div>
+      <div class="field">
+        <label for="urin-stickstoff">Stickstoff im Urin</label>
+        <input type="number" id="urin-stickstoff" step="0.1" min="0" inputmode="decimal" disabled>
+      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ergebnis</span>
+      <span class="value" id="urin-output">– (Formel folgt)</span>
+    </div>
+  </section>
+
+  <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
+
+  <div class="disclaimer">
+    <strong>Hinweis</strong>
+    Alle Ergebnisse dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben und Ergebnis vor der Verwendung plausibilisieren.
+  </div>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
+  </footer>
+
+</div>
+
+<script>
+  function fmt(num, decimals) {
+    if (!isFinite(num)) return null;
+    return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  // Serum-Osmolalität
+  const serumNa = document.getElementById('serum-na');
+  const serumGlucose = document.getElementById('serum-glucose');
+  const serumHarnstoff = document.getElementById('serum-harnstoff');
+  const serumOutput = document.getElementById('serum-output');
+  const serumCorrectionNote = document.getElementById('serum-correction-note');
+
+  function calcSerumOsmolalitaet() {
+    const na = parseFloat(serumNa.value);
+    const glucose = parseFloat(serumGlucose.value);
+    const harnstoff = parseFloat(serumHarnstoff.value);
+
+    if (isNaN(na) || isNaN(glucose) || isNaN(harnstoff) || na < 0 || glucose < 0 || harnstoff < 0) {
+      serumOutput.textContent = '– mOsmol/kgH2O';
+      serumCorrectionNote.style.display = 'none';
+      return;
+    }
+
+    let naForCalc = na;
+    if (glucose > 100) {
+      naForCalc = na + 2.4 * ((glucose - 100) / 100);
+      serumCorrectionNote.textContent = 'Hyperglykämie erkannt (Glucose > 100 mg/dl): Na⁺ korrigiert auf ' + fmt(naForCalc, 1) + ' mmol/l und in der Berechnung verwendet.';
+      serumCorrectionNote.style.display = 'block';
+    } else {
+      serumCorrectionNote.style.display = 'none';
+    }
+
+    const result = 1.86 * naForCalc + (glucose / 18) + (harnstoff / 6) + 9;
+    serumOutput.textContent = fmt(result, 1) + ' mOsmol/kgH2O';
+  }
+
+  serumNa.addEventListener('input', calcSerumOsmolalitaet);
+  serumGlucose.addEventListener('input', calcSerumOsmolalitaet);
+  serumHarnstoff.addEventListener('input', calcSerumOsmolalitaet);
+
+  // Alle Felder zurücksetzen
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    serumNa.value = '';
+    serumGlucose.value = '';
+    serumHarnstoff.value = '';
+    serumOutput.textContent = '– mOsmol/kgH2O';
+    serumCorrectionNote.style.display = 'none';
+
+    document.getElementById('urin-na').value = '';
+    document.getElementById('urin-kalium').value = '';
+    document.getElementById('urin-harnstoff').value = '';
+    document.getElementById('urin-stickstoff').value = '';
+    document.getElementById('urin-output').textContent = '– (Formel folgt)';
+  });
+</script>
+
+</body>
+</html>
