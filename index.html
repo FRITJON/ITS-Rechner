@@ -13,7 +13,7 @@
     --liver: #b5772f;    /* SOFA-Tile Akzent */
     --renal: #2b6ca3;    /* TIVA-Tile Akzent */
     --cardio: #a5333f;
-    --serum: #2f7a5c;    /* Osmolalitäts-Tile Akzent */
+    --viewport: #3a7d5c; /* Fenstergröße-Tile Akzent */
     --muted: #5a6b73;
     --focus: #1c5b8a;
     --mix-base: #ffffff;
@@ -28,7 +28,7 @@
       --liver: #d99a52;
       --renal: #6fa8d8;
       --cardio: #e0707c;
-      --serum: #5cba95;
+      --viewport: #6fbf95;
       --muted: #93a3ac;
       --focus: #7bb4e6;
       --mix-base: #1b232a;
@@ -100,7 +100,8 @@
 
   .tile.sofa   { --accent: var(--liver); }
   .tile.tiva   { --accent: var(--renal); }
-  .tile.osmo   { --accent: var(--serum); }
+  .tile.window { --accent: var(--viewport); }
+  .tile.osmo   { --accent: var(--cardio); }
 
   .tile h2 {
     font-size: 1.25rem;
@@ -155,9 +156,14 @@
       <p class="desc">Rechner für die totale intravenöse Anästhesie.</p>
     </a>
 
+    <a class="tile window" href="fenstergroesse.html">
+      <h2>Fenstergröße</h2>
+      <p class="desc">Zeigt die aktuellen Viewport-Maße (Breite × Höhe) des Browserfensters an.</p>
+    </a>
+
     <a class="tile osmo" href="osmolalitaets-rechner.html">
       <h2>Osmolalität</h2>
-      <p class="desc">Umrechnungen für Serum- und Harn-Osmolalität.</p>
+      <p class="desc">Berechnung der Serum-Osmolalität.</p>
     </a>
 
   </div>

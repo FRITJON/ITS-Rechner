@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fenstergröße · Viewport-Maße</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --viewport: #3a7d5c;  /* Akzentfarbe dieses Tools */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --viewport: #6fbf95;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.45;
+    padding: 1.25rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page { margin-bottom: 1.5rem; }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page h1 {
+    font-size: 1.6rem;
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--viewport);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .card h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+    color: var(--viewport);
+  }
+
+  .card .source {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.85rem;
+  }
+
+  .result {
+    margin-top: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: color-mix(in srgb, var(--viewport) 12%, var(--mix-base));
+    border: 1px solid color-mix(in srgb, var(--viewport) 40%, var(--line));
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .result .value {
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--viewport);
+    letter-spacing: 0.02em;
+  }
+
+  .result .label {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+    .result .value { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">Layout-Hilfe · Kachel</div>
+    <h1>Fenstergröße (Viewport)</h1>
+  </header>
+
+  <section class="card">
+    <h2>Aktuelle Viewport-Maße</h2>
+    <p class="source">innerWidth × innerHeight – der Bereich, der für CSS-Layout tatsächlich zur Verfügung steht (ohne Browser-Chrome). Aktualisiert sich live bei Größenänderung.</p>
+    <div class="result">
+      <div class="value" id="dims">– × –</div>
+      <div class="label">Breite × Höhe in CSS-Pixeln</div>
+    </div>
+  </section>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Daten – alle Werte werden nur lokal im Browser ausgelesen.
+  </footer>
+
+</div>
+
+<script>
+  const dimsEl = document.getElementById('dims');
+  function updateDims() {
+    dimsEl.textContent = window.innerWidth + ' × ' + window.innerHeight;
+  }
+  updateDims();
+  window.addEventListener('resize', updateDims);
+</script>
+
+</body>
+</html>
