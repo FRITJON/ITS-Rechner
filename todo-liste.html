@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do-Liste (Test)</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --todo: #1c7c6e;      /* Akzentfarbe dieses Tools */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff;
+    --disclaimer-bg: #fff6e6;
+    --disclaimer-border: #e8c98a;
+    --disclaimer-ink: #5c4419;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --todo: #4fb8a8;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+      --disclaimer-bg: #332a15;
+      --disclaimer-border: #6b5423;
+      --disclaimer-ink: #f0d9a0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.4;
+    padding: 0.9rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page { margin-bottom: 0.9rem; }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page .eyebrow a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  header.page h1 {
+    font-size: 1.45rem;
+    margin: 0.1rem 0 0;
+    font-weight: 700;
+  }
+
+  .disclaimer {
+    background: var(--disclaimer-bg);
+    border: 1px solid var(--disclaimer-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--disclaimer-ink);
+    margin: 0.85rem 0 0.85rem;
+  }
+
+  .disclaimer strong { font-weight: 700; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--todo);
+    border-radius: 10px;
+    padding: 0.75rem 1rem 0.85rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .card h2 {
+    font-size: 1.2rem;
+    margin: 0 0 0.45rem;
+    font-weight: 700;
+    color: var(--todo);
+  }
+
+  .add-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .add-row input[type="text"] {
+    flex: 1 1 auto;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--todo) 10%, var(--mix-base));
+    border-color: color-mix(in srgb, var(--todo) 40%, var(--line));
+    color: var(--ink);
+    font-family: inherit;
+  }
+
+  .add-row input[type="text"]:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .add-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #ffffff;
+    background: var(--todo);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .add-btn:hover { opacity: 0.9; }
+
+  .add-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  ul.todo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .todo-item input[type="checkbox"] {
+    margin-top: 0.2rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--todo);
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .todo-item .text {
+    flex: 1 1 auto;
+    font-size: 0.95rem;
+    word-break: break-word;
+    cursor: pointer;
+  }
+
+  .todo-item.done .text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .todo-item .delete-btn {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    line-height: 1;
+  }
+
+  .todo-item .delete-btn:hover { color: var(--ink); }
+
+  .todo-item .delete-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .empty-hint {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 0.8rem 0;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.9rem;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.4rem;
+  }
+
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--muted) 12%, var(--card));
+  }
+
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow"><a href="index.html">← Zurück</a></div>
+    <h1>To-Do-Liste (Test)</h1>
+  </header>
+
+  <section class="card">
+    <h2>Aufgaben</h2>
+    <div class="add-row">
+      <input type="text" id="new-item-input" placeholder="Neue Aufgabe eingeben …" maxlength="200">
+      <button type="button" id="add-btn" class="add-btn">Hinzufügen</button>
+    </div>
+    <ul class="todo-list" id="todo-list"></ul>
+    <p class="empty-hint" id="empty-hint">Noch keine Einträge vorhanden.</p>
+  </section>
+
+  <button type="button" id="reset-btn" class="reset-btn">Alle Einträge löschen</button>
+
+  <div class="disclaimer">
+    <strong>Hinweis (Testversion):</strong> Diese Liste wird ausschließlich lokal im Speicher dieses Browsers auf diesem Gerät abgelegt (localStorage) – nicht auf einem Server. Sie ist dadurch <strong>nicht geräteübergreifend</strong> sichtbar: Einträge, die hier gemacht werden, erscheinen nicht auf einem anderen Rechner oder in einem anderen Browser. Wird der Browser-Speicher/Cache geleert, gehen die Einträge verloren. Bitte <strong>keine Patientendaten</strong> eintragen, da der lokale Speicher nicht verschlüsselt und nicht zugriffsgeschützt ist.
+  </div>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Daten an einen Server – alle Einträge bleiben nur lokal auf diesem Gerät.
+  </footer>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'todo-liste-test-v1';
+
+  const listEl = document.getElementById('todo-list');
+  const emptyHint = document.getElementById('empty-hint');
+  const newItemInput = document.getElementById('new-item-input');
+  const addBtn = document.getElementById('add-btn');
+  const resetBtn = document.getElementById('reset-btn');
+
+  function loadItems() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveItems(items) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {
+      // localStorage nicht verfügbar (z. B. privater Modus) - Liste bleibt nur für die Sitzung erhalten
+    }
+  }
+
+  let items = loadItems();
+
+  function render() {
+    listEl.innerHTML = '';
+    if (items.length === 0) {
+      emptyHint.style.display = 'block';
+    } else {
+      emptyHint.style.display = 'none';
+    }
+
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'todo-item' + (item.done ? ' done' : '');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = item.done;
+      checkbox.addEventListener('change', () => {
+        items[index].done = checkbox.checked;
+        saveItems(items);
+        render();
+      });
+
+      const text = document.createElement('span');
+      text.className = 'text';
+      text.textContent = item.text;
+      text.addEventListener('click', () => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.setAttribute('aria-label', 'Eintrag löschen');
+      deleteBtn.textContent = '✕';
+      deleteBtn.addEventListener('click', () => {
+        items.splice(index, 1);
+        saveItems(items);
+        render();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(text);
+      li.appendChild(deleteBtn);
+      listEl.appendChild(li);
+    });
+  }
+
+  function addItem() {
+    const value = newItemInput.value.trim();
+    if (!value) return;
+    items.push({ text: value, done: false });
+    saveItems(items);
+    newItemInput.value = '';
+    render();
+    newItemInput.focus();
+  }
+
+  addBtn.addEventListener('click', addItem);
+  newItemInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addItem();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (items.length === 0) return;
+    items = [];
+    saveItems(items);
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
