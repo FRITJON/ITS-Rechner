@@ -48,14 +48,14 @@
     background: var(--paper);
     color: var(--ink);
     font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.45;
-    padding: 1.25rem;
+    line-height: 1.4;
+    padding: 0.9rem;
   }
 
   .wrap { max-width: 760px; margin: 0 auto; }
 
   header.page {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.9rem;
   }
 
   header.page .eyebrow {
@@ -65,15 +65,15 @@
     color: var(--muted);
     font-weight: 600;
   }
-  
-    header.page .eyebrow a {
-  	color: var(--muted);
-  	text-decoration: none;
+
+  header.page .eyebrow a {
+    color: var(--muted);
+    text-decoration: none;
   }
 
   header.page h1 {
-    font-size: 1.6rem;
-    margin: 0.15rem 0 0;
+    font-size: 1.45rem;
+    margin: 0.1rem 0 0;
     font-weight: 700;
   }
 
@@ -81,21 +81,21 @@
     background: var(--disclaimer-bg);
     border: 1px solid var(--disclaimer-border);
     border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
     color: var(--disclaimer-ink);
-    margin: 1.25rem 0 1.75rem;
+    margin: 0.85rem 0 0.85rem;
   }
 
-  .disclaimer strong { display: block; margin-bottom: 0.15rem; }
+  .disclaimer strong { font-weight: 700; }
 
   .card {
     background: var(--card);
     border: 1px solid var(--line);
     border-left: 5px solid var(--accent, var(--ink));
     border-radius: 10px;
-    padding: 1.1rem 1.25rem 1.25rem;
-    margin-bottom: 1.1rem;
+    padding: 0.75rem 1rem 0.85rem;
+    margin-bottom: 0.7rem;
   }
 
   .card.patient  { --accent: var(--patient); }
@@ -103,41 +103,35 @@
   .card.remi     { --accent: var(--remi); }
 
   .card h2 {
-    font-size: 1.4rem;
-    margin: 0 0 0.2rem;
+    font-size: 1.2rem;
+    margin: 0 0 0.45rem;
     font-weight: 700;
     color: var(--accent);
-  }
-
-  .card .source {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin: 0 0 0.85rem;
   }
 
   .field-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.6rem;
     align-items: flex-end;
   }
 
   .field {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.2rem;
     flex: 1 1 140px;
   }
 
   label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--ink);
   }
 
   input[type="number"], select {
-    font-size: 1rem;
-    padding: 0.55rem 0.6rem;
+    font-size: 0.95rem;
+    padding: 0.42rem 0.55rem;
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--paper);
@@ -170,7 +164,7 @@
 
   .custom-weight-row {
     display: none;
-    margin-top: 0.75rem;
+    margin-top: 0.55rem;
   }
 
   .custom-weight-row.visible {
@@ -178,10 +172,10 @@
   }
 
   .result {
-    padding: 0.7rem 0.9rem;
+    padding: 0.5rem 0.75rem;
     background: var(--paper);
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -192,114 +186,20 @@
 
   .result .value {
     font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--accent);
   }
 
   .result .label {
     color: var(--muted);
-    font-size: 0.85rem;
-  }
-
-  .field-inline {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
-    padding: 0.55rem 0.6rem;
-    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
-  }
-
-  .field-inline:focus-within {
-    outline: 2px solid var(--focus);
-    outline-offset: 1px;
-  }
-
-  .field-inline-label {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--muted);
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
-
-  .field-inline input[type="number"] {
-    border: none;
-    background: transparent;
-    padding: 0;
-    width: 12ch;
-    flex: 0 0 auto;
-    text-align: right;
-    color: var(--ink);
-    caret-color: var(--ink);
-  }
-
-  .field-inline input[type="number"]:focus {
-    outline: none;
-  }
-
-  /* Erste Zeile im Patientendaten-Kasten: exakte Breitenverteilung nur per Grid (siehe Media Query unten) */
-
-  @media (min-width: 421px) {
-    /* Zeile 1: exakte Breitenverteilung 0,25 / 0,25 / 0,5 über CSS Grid */
-    .patient-row-1 {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
-      gap: 0.75rem;
-      align-items: end;
-    }
-
-    .patient-row-1 input[type="number"], .patient-row-1 select {
-      line-height: 1.2;
-    }
-
-    .field-ibw.result {
-      padding: 0.55rem 0.6rem;
-      font-size: 0.85rem;
-    }
-
-    .field-ibw.result .value {
-      font-size: 1rem;
-    }
-
-    /* Zeile 2: identisches Spaltenraster wie Zeile 1, damit die Lücke exakt an derselben Position liegt */
-    .custom-weight-line {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
-      gap: 0.75rem;
-      align-items: end;
-      margin-top: 0.85rem;
-    }
-
-    .custom-weight-line .toggle-btn {
-      display: block;
-      width: 100%;
-      grid-column: 1 / 3;
-      padding: 0.55rem 0.6rem;
-      font-size: 1rem;
-      line-height: 1.2;
-      margin-top: 0;
-    }
-
-    .custom-weight-line .custom-weight-row {
-      grid-column: 3 / 4;
-      min-width: 0;
-      margin-top: 0;
-    }
-
-    .custom-weight-line .custom-weight-row .field {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
+    font-size: 0.82rem;
   }
 
   .toggle-btn {
     display: inline-block;
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     font-family: inherit;
     color: var(--accent);
@@ -307,7 +207,7 @@
     border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
     border-radius: 6px;
     cursor: pointer;
-    margin-top: 0.85rem;
+    margin-top: 0.6rem;
   }
 
   .toggle-btn:hover {
@@ -320,23 +220,66 @@
   }
 
   .hint {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: var(--muted);
-    margin-top: 0.4rem;
+    margin-top: 0.35rem;
   }
+
+  .formulas {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0.7rem 0 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem 0.65rem;
+  }
+
+  .formulas strong {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  .formulas p {
+    margin: 0.2rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .formulas .dot {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    margin-top: 0.3rem;
+  }
+
+  .formulas .formula-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .formulas .dot.patient  { background: var(--patient); }
+  .formulas .dot.propofol { background: var(--propofol); }
+  .formulas .dot.remi     { background: var(--remi); }
 
   footer {
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--muted);
-    margin-top: 1.5rem;
+    margin-top: 0.9rem;
   }
 
   .reset-btn {
     display: block;
     width: 100%;
-    padding: 0.7rem 1rem;
-    font-size: 0.95rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.92rem;
     font-weight: 600;
     font-family: inherit;
     color: var(--ink);
@@ -344,7 +287,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     cursor: pointer;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
   }
 
   .reset-btn:hover {
@@ -359,48 +302,6 @@
   @media (max-width: 420px) {
     header.page h1 { font-size: 1.35rem; }
     .field { flex: 1 1 100%; }
-
-    .toggle-btn {
-      display: block;
-      width: 100%;
-      text-align: center;
-    }
-
-    /* Dosiergewicht-Feld mobil wie im ursprünglichen Design: Label oberhalb, volle Breite */
-    .field-inline {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.3rem;
-      padding: 0;
-      border: none;
-      background: transparent;
-    }
-
-    .field-inline-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--ink);
-      white-space: normal;
-    }
-
-    .field-inline input[type="number"] {
-      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
-      background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
-      border-radius: 6px;
-      padding: 0.55rem 0.6rem;
-      width: 100%;
-      text-align: left;
-    }
-
-    .field-inline:focus-within {
-      outline: none;
-    }
-
-    .field-inline input[type="number"]:focus {
-      outline: 2px solid var(--focus);
-      outline-offset: 1px;
-    }
   }
 </style>
 </head>
@@ -415,34 +316,29 @@
   <!-- Patientendaten / IBW -->
   <section class="card patient">
     <h2>Patientendaten</h2>
-    <p class="source">Ideales Körpergewicht (IBW) nach Devine-Formel: Männlich = 50 + 0,91 × (Größe [cm] − 152,4); Weiblich = 45,5 + 0,91 × (Größe [cm] − 152,4).</p>
-    <div class="field-row patient-row-1">
-      <div class="field field-geschlecht">
+    <div class="field-row">
+      <div class="field">
         <label for="sex-input">Geschlecht</label>
         <select id="sex-input">
           <option value="female" selected>weiblich</option>
           <option value="male">männlich</option>
         </select>
       </div>
-      <div class="field field-groesse">
+      <div class="field">
         <label for="height-input">Körpergröße (cm)</label>
         <input type="number" id="height-input" step="1" min="0" inputmode="decimal">
       </div>
-      <div class="field field-ibw result">
-        <span class="label">Ideales Körpergewicht (IBW)</span>
-        <span class="value" id="ibw-output">– kg</span>
-      </div>
+    </div>
+    <div class="result">
+      <span class="label">Ideales Körpergewicht (IBW)</span>
+      <span class="value" id="ibw-output">– kg</span>
     </div>
 
-    <div class="custom-weight-line">
-      <button type="button" id="custom-weight-toggle" class="toggle-btn">Individuelles Dosiergewicht festlegen</button>
-      <div class="field-row custom-weight-row" id="custom-weight-row">
-        <div class="field">
-          <div class="field-inline">
-            <span class="field-inline-label">Individuelles Dosiergewicht (kg)</span>
-            <input type="number" id="custom-weight-input" step="0.1" min="0" inputmode="decimal" aria-label="Individuelles Dosiergewicht in kg">
-          </div>
-        </div>
+    <button type="button" id="custom-weight-toggle" class="toggle-btn">Individuelles Dosiergewicht festlegen</button>
+    <div class="field-row custom-weight-row" id="custom-weight-row">
+      <div class="field">
+        <label for="custom-weight-input">Individuelles Dosiergewicht (kg)</label>
+        <input type="number" id="custom-weight-input" step="0.1" min="0" inputmode="decimal">
       </div>
     </div>
     <p class="hint" id="dosing-weight-hint">Grundlage für die Dosisberechnung unten: IBW (sofern kein individuelles Dosiergewicht angegeben ist).</p>
@@ -451,7 +347,6 @@
   <!-- Propofol -->
   <section class="card propofol">
     <h2>Propofol</h2>
-    <p class="source">1 % = 10 mg/ml, 2 % = 20 mg/ml. Formel: ml/h = (mg/kg/h × Dosiergewicht [kg]) ÷ Konzentration [mg/ml]</p>
     <div class="field-row">
       <div class="field">
         <label for="propofol-conc">Konzentration</label>
@@ -474,7 +369,6 @@
   <!-- Remifentanil -->
   <section class="card remi">
     <h2>Remifentanil</h2>
-    <p class="source">Formel: ml/h = (µg/kg/min × Dosiergewicht [kg] × 60) ÷ Konzentration [µg/ml]</p>
     <div class="field-row">
       <div class="field">
         <label for="remi-dilution">Verdünnung</label>
@@ -497,9 +391,15 @@
 
   <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
 
+  <div class="formulas">
+    <strong>Verwendete Formeln</strong>
+    <p><span class="dot patient"></span><span class="formula-text">IBW nach Devine-Formel: Männlich = 50 + 0,91 × (Größe [cm] − 152,4); Weiblich = 45,5 + 0,91 × (Größe [cm] − 152,4).</span></p>
+    <p><span class="dot propofol"></span><span class="formula-text">Propofol: 1 % = 10 mg/ml, 2 % = 20 mg/ml. ml/h = (mg/kg/h × Dosiergewicht [kg]) ÷ Konzentration [mg/ml]</span></p>
+    <p><span class="dot remi"></span><span class="formula-text">Remifentanil: ml/h = (µg/kg/min × Dosiergewicht [kg] × 60) ÷ Konzentration [µg/ml]</span></p>
+  </div>
+
   <div class="disclaimer">
-    <strong>Hinweis</strong>
-    Alle berechneten Dosierungen und Laufraten dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben, Verdünnungen, Dosiergewicht und Ergebnisse vor der Anwendung am Patienten sorgfältig prüfen und plausibilisieren.
+    <strong>Hinweis:</strong> Alle berechneten Dosierungen und Laufraten dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben, Verdünnungen, Dosiergewicht und Ergebnisse vor der Anwendung am Patienten sorgfältig prüfen und plausibilisieren.
   </div>
 
   <footer>
@@ -585,8 +485,6 @@
     const isVisible = customWeightRow.classList.toggle('visible');
     if (!isVisible) {
       customWeightInput.value = '';
-    } else {
-      customWeightInput.focus();
     }
     updateDosingHint();
   });

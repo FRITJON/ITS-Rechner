@@ -13,7 +13,6 @@
     --liver: #b5772f;    /* SOFA-Tile Akzent */
     --renal: #2b6ca3;    /* TIVA-Tile Akzent */
     --cardio: #a5333f;
-    --viewport: #3a7d5c; /* Fenstergröße-Tile Akzent */
     --muted: #5a6b73;
     --focus: #1c5b8a;
     --mix-base: #ffffff;
@@ -28,7 +27,6 @@
       --liver: #d99a52;
       --renal: #6fa8d8;
       --cardio: #e0707c;
-      --viewport: #6fbf95;
       --muted: #93a3ac;
       --focus: #7bb4e6;
       --mix-base: #1b232a;
@@ -100,7 +98,6 @@
 
   .tile.sofa   { --accent: var(--liver); }
   .tile.tiva   { --accent: var(--renal); }
-  .tile.window { --accent: var(--viewport); }
   .tile.osmo   { --accent: var(--cardio); }
 
   .tile h2 {
@@ -119,6 +116,21 @@
   .tile.disabled {
     opacity: 0.6;
     cursor: default;
+  }
+
+  .pending-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 16%, var(--mix-base));
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
   }
 
   @media (max-width: 420px) {
@@ -156,18 +168,32 @@
       <p class="desc">Rechner für die totale intravenöse Anästhesie.</p>
     </a>
 
-    <a class="tile window" href="fenstergroesse.html">
-      <h2>Fenstergröße</h2>
-      <p class="desc">Zeigt die aktuellen Viewport-Maße (Breite × Höhe) des Browserfensters an.</p>
-    </a>
-
-    <a class="tile osmo" href="osmolalitaets-rechner.html">
-      <h2>Osmolalität</h2>
+    <div class="tile osmo disabled">
+      <h2>Osmolalität <span class="pending-badge">In Arbeit</span></h2>
       <p class="desc">Berechnung der Serum-Osmolalität.</p>
-    </a>
+    </div>
 
   </div>
 
 </div>
+
+<script>
+  // Kacheln automatisch sortieren: zuerst aktive, dann deaktivierte Kacheln,
+  // innerhalb jeder Gruppe alphabetisch nach Überschrift (unabhängig von der Reihenfolge im HTML)
+  (function sortTiles() {
+    const container = document.querySelector('.tiles');
+    const tiles = Array.from(container.querySelectorAll('.tile'));
+    tiles.sort((a, b) => {
+      const disabledA = a.classList.contains('disabled') ? 1 : 0;
+      const disabledB = b.classList.contains('disabled') ? 1 : 0;
+      if (disabledA !== disabledB) return disabledA - disabledB;
+      const textA = a.querySelector('h2').childNodes[0].textContent.trim();
+      const textB = b.querySelector('h2').childNodes[0].textContent.trim();
+      return textA.localeCompare(textB, 'de');
+    });
+    tiles.forEach(tile => container.appendChild(tile));
+  })();
+</script>
+
 </body>
 </html>
