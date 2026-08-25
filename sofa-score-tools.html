@@ -301,6 +301,46 @@
     font-size: 0.7rem;
   }
 
+  .subsection-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0.7rem 0 0.2rem;
+  }
+
+  .toggle-group {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    width: fit-content;
+  }
+
+  .toggle-option {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--card);
+    border: none;
+    cursor: pointer;
+  }
+
+  .toggle-option + .toggle-option {
+    border-left: 1px solid var(--line);
+  }
+
+  .toggle-option.active {
+    background: var(--accent);
+    color: #ffffff;
+  }
+
+  .toggle-option:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+
   footer {
     text-align: center;
     font-size: 0.72rem;
@@ -402,6 +442,16 @@
     <h2>Katecholamine</h2>
     <div class="field-row">
       <div class="field">
+        <label for="dobutamine-toggle" class="subsection-label" style="margin:0;">Dobutamin</label>
+        <div class="toggle-group" id="dobutamine-toggle">
+          <button type="button" class="toggle-option active" data-value="nein">Nein</button>
+          <button type="button" class="toggle-option" data-value="ja">Ja</button>
+        </div>
+      </div>
+    </div>
+    <p class="subsection-label">Noradrenalin</p>
+    <div class="field-row">
+      <div class="field">
         <label for="cat-rate">Perfusorlaufrate (ml/h)</label>
         <input type="number" id="cat-rate" step="0.1" min="0" inputmode="decimal">
       </div>
@@ -423,8 +473,12 @@
       <span class="value" id="cat-output">– µg/kg/min</span>
     </div>
     <div class="score">
-      <div class="score-labels"><span>3</span><span>4</span></div>
+      <div class="score-labels"><span>2</span><span>3</span><span>4</span></div>
       <div class="score-boxes" id="cat-score">
+        <div class="score-box cat-box">
+          <span class="cat-box-title">niedrige Katecholamin-Dosis</span>
+          <span class="cat-box-sub">jede Dosis Dobutamin</span>
+        </div>
         <div class="score-box cat-box">
           <span class="cat-box-title">mittlere Katecholamin-Dosis</span>
           <span class="cat-box-sub">≤0,1 µg/kg/min</span>
@@ -513,15 +567,17 @@
     const dilution = parseFloat(catDilution.value);
     const catBoxes = document.querySelectorAll('#cat-score .score-box');
     catBoxes.forEach(b => b.classList.remove('active'));
-    if (isNaN(rate) || isNaN(weight) || rate < 0 || weight <= 0) {
-      catOutput.textContent = '– µg/kg/min';
-      return;
-    }
-    const result = (rate * dilution * 1000) / (60 * weight);
-    catOutput.textContent = fmt(result, 3) + ' µg/kg/min';
-    if (result > 0.1) {
+
+    const validInput = !isNaN(rate) && !isNaN(weight) && rate >= 0 && weight > 0;
+    const result = validInput ? (rate * dilution * 1000) / (60 * weight) : NaN;
+    catOutput.textContent = validInput ? fmt(result, 3) + ' µg/kg/min' : '– µg/kg/min';
+
+    if (validInput && result > 0.1) {
+      catBoxes[2].classList.add('active');
+    } else if (validInput && result > 0) {
       catBoxes[1].classList.add('active');
-    } else if (result > 0) {
+    } else if (dobutamineValue === 'ja') {
+      // Dobutamin ja, aber kein rechnerisches Ergebnis für Noradrenalin -> niedrige Dosis
       catBoxes[0].classList.add('active');
     }
   }
@@ -530,6 +586,18 @@
   catWeight.addEventListener('input', calcCatecholamine);
   catDilution.addEventListener('change', calcCatecholamine);
 
+  // Dobutamin-Umschalter
+  const dobutamineToggle = document.getElementById('dobutamine-toggle');
+  let dobutamineValue = 'nein';
+  dobutamineToggle.querySelectorAll('.toggle-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      dobutamineToggle.querySelectorAll('.toggle-option').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      dobutamineValue = btn.dataset.value;
+      calcCatecholamine();
+    });
+  });
+
   // Alle Felder zurücksetzen
   document.getElementById('reset-btn').addEventListener('click', () => {
     biliInput.value = '';
@@ -537,6 +605,10 @@
     catRate.value = '';
     catWeight.value = '';
     catDilution.selectedIndex = 1; // Standard: 0,1 mg/ml
+
+    dobutamineValue = 'nein';
+    dobutamineToggle.querySelectorAll('.toggle-option').forEach(b => b.classList.remove('active'));
+    dobutamineToggle.querySelector('[data-value="nein"]').classList.add('active');
 
     biliOutput.textContent = '– µmol/l';
     creaOutput.textContent = '– µmol/l';
