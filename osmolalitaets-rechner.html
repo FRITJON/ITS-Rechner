@@ -63,7 +63,7 @@
     color: var(--muted);
     font-weight: 600;
   }
-  
+
     header.page .eyebrow a {
   	color: var(--muted);
   	text-decoration: none;
@@ -261,6 +261,7 @@
   }
 
   .formulas .dot.serum { background: var(--serum); }
+  .formulas .dot.urin  { background: var(--urin); }
 
   footer {
     text-align: center;
@@ -333,29 +334,28 @@
 
   <!-- Harn-Osmolalität -->
   <section class="card urin">
-    <h2>Harn-Osmolalität <span class="pending-badge">Formel folgt</span></h2>
-    <p class="source">Die Berechnungsformel liegt noch nicht vor. Die Felder sind bereits angelegt, die Berechnung folgt, sobald die Formel geliefert wird.</p>
+    <h2>Harn-Osmolalität</h2>
     <div class="field-row">
       <div class="field">
-        <label for="urin-na">Na⁺ im Urin</label>
-        <input type="number" id="urin-na" step="0.1" min="0" inputmode="decimal" disabled>
+        <label for="urin-na">Na⁺ im Urin (mmol/l)</label>
+        <input type="number" id="urin-na" step="0.1" min="0" inputmode="decimal">
       </div>
       <div class="field">
-        <label for="urin-kalium">K⁺ im Urin</label>
-        <input type="number" id="urin-kalium" step="0.1" min="0" inputmode="decimal" disabled>
+        <label for="urin-kalium">Kalium im Urin (mmol/l)</label>
+        <input type="number" id="urin-kalium" step="0.1" min="0" inputmode="decimal">
       </div>
       <div class="field">
-        <label for="urin-harnstoff">Harnstoff im Urin</label>
-        <input type="number" id="urin-harnstoff" step="0.1" min="0" inputmode="decimal" disabled>
+        <label for="urin-glucose">Glucose im Urin (mg/dl)</label>
+        <input type="number" id="urin-glucose" step="1" min="0" inputmode="decimal">
       </div>
       <div class="field">
-        <label for="urin-stickstoff">Stickstoff im Urin</label>
-        <input type="number" id="urin-stickstoff" step="0.1" min="0" inputmode="decimal" disabled>
+        <label for="urin-harnstoff">Harnstoff im Urin (mg/dl)</label>
+        <input type="number" id="urin-harnstoff" step="1" min="0" inputmode="decimal">
       </div>
     </div>
     <div class="result">
       <span class="label">Ergebnis</span>
-      <span class="value" id="urin-output">– (Formel folgt)</span>
+      <span class="value" id="urin-output">– mOsmol/kg</span>
     </div>
   </section>
 
@@ -363,7 +363,8 @@
 
   <div class="formulas">
     <strong>Verwendete Formeln</strong>
-    <p><span class="dot serum"></span><span class="formula-text">Serum-Osmolalität (kalkuliert, mOsmol/kgH<sub>2</sub>O) = 1,86 × Na⁺ + (Glucose/18) + (Harnstoff/6) + 9</span></p>
+    <p><span class="dot serum"></span><span class="formula-text">Serum-Osmolalität (kalkuliert, mOsmol/kgH<sub>2</sub>O) = 1,86 × Serum-Na⁺ + (Serum-Glucose/18) + (Serum-Harnstoff/6) + 9</span></p>
+    <p><span class="dot urin"></span><span class="formula-text">Harn-Osmolalität (kalkuliert, mOsmol/kg) = 2 × (Urin-Na⁺ + Urin-K⁺) + (Urin-Harnstoff/6) + (Urin-Glucose/18)</span></p>
   </div>
 
   <div class="disclaimer">
@@ -417,6 +418,34 @@
   serumGlucose.addEventListener('input', calcSerumOsmolalitaet);
   serumHarnstoff.addEventListener('input', calcSerumOsmolalitaet);
 
+  // Harn-Osmolalität
+  const urinNa = document.getElementById('urin-na');
+  const urinKalium = document.getElementById('urin-kalium');
+  const urinHarnstoff = document.getElementById('urin-harnstoff');
+  const urinGlucose = document.getElementById('urin-glucose');
+  const urinOutput = document.getElementById('urin-output');
+
+  function calcHarnOsmolalitaet() {
+    const na = parseFloat(urinNa.value);
+    const kalium = parseFloat(urinKalium.value);
+    const harnstoff = parseFloat(urinHarnstoff.value);
+    const glucose = parseFloat(urinGlucose.value);
+
+    if (isNaN(na) || isNaN(kalium) || isNaN(harnstoff) || isNaN(glucose) ||
+        na < 0 || kalium < 0 || harnstoff < 0 || glucose < 0) {
+      urinOutput.textContent = '– mOsmol/kg';
+      return;
+    }
+
+    const result = 2 * (na + kalium) + (harnstoff / 6) + (glucose / 18);
+    urinOutput.textContent = fmt(result, 1) + ' mOsmol/kg';
+  }
+
+  urinNa.addEventListener('input', calcHarnOsmolalitaet);
+  urinKalium.addEventListener('input', calcHarnOsmolalitaet);
+  urinHarnstoff.addEventListener('input', calcHarnOsmolalitaet);
+  urinGlucose.addEventListener('input', calcHarnOsmolalitaet);
+
   // Alle Felder zurücksetzen
   document.getElementById('reset-btn').addEventListener('click', () => {
     serumNa.value = '';
@@ -425,11 +454,11 @@
     serumOutput.textContent = '– mOsmol/kgH2O';
     serumCorrectionNote.style.display = 'none';
 
-    document.getElementById('urin-na').value = '';
-    document.getElementById('urin-kalium').value = '';
-    document.getElementById('urin-harnstoff').value = '';
-    document.getElementById('urin-stickstoff').value = '';
-    document.getElementById('urin-output').textContent = '– (Formel folgt)';
+    urinNa.value = '';
+    urinKalium.value = '';
+    urinHarnstoff.value = '';
+    urinGlucose.value = '';
+    urinOutput.textContent = '– mOsmol/kg';
   });
 </script>
 
