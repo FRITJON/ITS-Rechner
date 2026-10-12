@@ -12,7 +12,8 @@
     --line: #d9dfe1;
     --liver: #b5772f;    /* SOFA-Tile Akzent */
     --renal: #2b6ca3;    /* TIVA-Tile Akzent */
-    --cardio: #a5333f;
+    --cardio: #a5333f;	/* OSMO-Tile Akzent */
+    --weight: #6a4c93;	/* BW-Tile Akzent */
     --muted: #5a6b73;
     --focus: #1c5b8a;
     --mix-base: #ffffff;
@@ -99,6 +100,7 @@
   .tile.sofa   { --accent: var(--liver); }
   .tile.tiva   { --accent: var(--renal); }
   .tile.osmo   { --accent: var(--cardio); }
+.tile.gewicht   { --accent: var(--weight); }
 
   .tile h2 {
     font-size: 1.25rem;
@@ -160,17 +162,22 @@
 
     <a class="tile sofa" href="sofa-score-tools.html">
       <h2>SOFA-Score</h2>
-      <p class="desc">Umrechnungen Bilirubin, Kreatinin und Katecholamine für die SOFA-Score-Erhebung.</p>
+      <p class="desc">Umrechnungen Bilirubin, Kreatinin und Katecholamine für die SOFA-Score-Erhebung</p>
+    </a>
+
+    <a class="tile gewicht" href="koerpergewicht-rechner.html">
+      <h2>Körpergewicht</h2>
+      <p class="desc">IBW, adj. Gewicht, LBW, Körperoberfläche</p>
     </a>
 
     <a class="tile tiva" href="tiva-rechner.html">
       <h2>TIVA-Rechner</h2>
-      <p class="desc">Rechner für die totale intravenöse Anästhesie.</p>
+      <p class="desc">Laufraten-Rechner für die totale intravenöse Anästhesie</p>
     </a>
 
     <a class="tile osmo" href="osmolalitaets-rechner.html">
       <h2>Osmolalität</h2>
-      <p class="desc">Berechnung der Serum- und Harn-Osmolalität.</p>
+      <p class="desc">Berechnung der Serum- und Harn-Osmolalität</p>
     </a>
 
   </div>

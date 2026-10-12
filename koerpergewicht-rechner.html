@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Körpergewicht-Rechner</title>
+<style>
+  :root {
+    --ink: #16232d;
+    --paper: #f7f8f7;
+    --card: #ffffff;
+    --line: #d9dfe1;
+    --patient: #3f7d5c;   /* Patientendaten */
+    --ibw: #2b6ca3;       /* IBW / adjustiertes Gewicht */
+    --lbw: #8a5a9e;       /* LBW / BSA */
+    --muted: #5a6b73;
+    --focus: #1c5b8a;
+    --mix-base: #ffffff;
+    --disclaimer-bg: #fff6e6;
+    --disclaimer-border: #e8c98a;
+    --disclaimer-ink: #5c4419;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8edf0;
+      --paper: #12181c;
+      --card: #1b232a;
+      --line: #35414a;
+      --patient: #63b184;
+      --ibw: #6fa8d8;
+      --lbw: #c19ad6;
+      --muted: #93a3ac;
+      --focus: #7bb4e6;
+      --mix-base: #1b232a;
+      --disclaimer-bg: #332a15;
+      --disclaimer-border: #6b5423;
+      --disclaimer-ink: #f0d9a0;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.4;
+    padding: 0.9rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.page { margin-bottom: 0.9rem; }
+
+  header.page .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  header.page .eyebrow a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  header.page h1 {
+    font-size: 1.45rem;
+    margin: 0.1rem 0 0;
+    font-weight: 700;
+  }
+
+  .disclaimer {
+    background: var(--disclaimer-bg);
+    border: 1px solid var(--disclaimer-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--disclaimer-ink);
+    margin: 0.85rem 0 0.85rem;
+  }
+
+  .disclaimer strong { font-weight: 700; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--accent, var(--ink));
+    border-radius: 10px;
+    padding: 0.75rem 1rem 0.85rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .card.patient { --accent: var(--patient); }
+  .card.ibw     { --accent: var(--ibw); }
+  .card.lbw     { --accent: var(--lbw); }
+
+  .card h2 {
+    font-size: 1.2rem;
+    margin: 0 0 0.45rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1 1 140px;
+  }
+
+  label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  input[type="number"], select {
+    font-size: 0.95rem;
+    padding: 0.42rem 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    color-scheme: light dark;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  input[type="number"]:focus, select:focus {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .card input[type="number"], .card select {
+    background: color-mix(in srgb, var(--accent) 12%, var(--mix-base));
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  }
+
+  /* Zahlenfeld-Pfeile ausblenden */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .result {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--paper);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .result:first-of-type { margin-top: 0; }
+
+  .result .value {
+    font-family: "Consolas", "SFMono-Regular", Menlo, monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .result .label {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .hint {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+
+  .formulas {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0.7rem 0 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem 0.65rem;
+  }
+
+  .formulas strong {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  .formulas p {
+    margin: 0.2rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .formulas .dot {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    margin-top: 0.3rem;
+  }
+
+  .formulas .formula-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .formulas .dot.ibw { background: var(--ibw); }
+  .formulas .dot.lbw { background: var(--lbw); }
+
+  footer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.9rem;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.4rem;
+  }
+
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--muted) 12%, var(--card));
+  }
+
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  @media (max-width: 420px) {
+    header.page h1 { font-size: 1.35rem; }
+    .field { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow"><a href="index.html">← Zurück</a></div>
+    <h1>Körpergewicht-Rechner</h1>
+  </header>
+
+  <!-- Patientendaten -->
+  <section class="card patient">
+    <h2>Patientendaten</h2>
+    <div class="field-row">
+      <div class="field">
+        <label for="sex-input">Geschlecht</label>
+        <select id="sex-input">
+          <option value="female" selected>weiblich</option>
+          <option value="male">männlich</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="height-input">Körpergröße (cm)</label>
+        <input type="number" id="height-input" step="1" min="0" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="weight-input">Aktuelles Körpergewicht (kg)</label>
+        <input type="number" id="weight-input" step="0.1" min="0" inputmode="decimal">
+      </div>
+    </div>
+  </section>
+
+  <!-- IBW / adjustiertes Gewicht -->
+  <section class="card ibw">
+    <h2>IBW &amp; adjustiertes Gewicht</h2>
+    <div class="result">
+      <span class="label">Ideales Körpergewicht (IBW, Devine)</span>
+      <span class="value" id="ibw-output">– kg</span>
+    </div>
+    <div class="result">
+      <span class="label">Adjustiertes Körpergewicht (AdjBW)</span>
+      <span class="value" id="adj-output">– kg</span>
+    </div>
+    <p class="hint">AdjBW mit Faktor 0,4. Der Faktor ist je nach Quelle unterschiedlich.</p>
+  </section>
+
+  <!-- LBW / BSA -->
+  <section class="card lbw">
+    <h2>LBW &amp; BSA</h2>
+    <div class="result">
+      <span class="label">Lean Body Weight (LBW, Janmahasatian)</span>
+      <span class="value" id="lbw-output">– kg</span>
+    </div>
+    <div class="result">
+      <span class="label">Körperoberfläche (BSA, Mosteller)</span>
+      <span class="value" id="bsa-output">– m²</span>
+    </div>
+  </section>
+
+  <button type="button" id="reset-btn" class="reset-btn">Felder zurücksetzen</button>
+
+  <div class="formulas">
+    <strong>Verwendete Formeln</strong>
+    <p><span class="dot ibw"></span><span class="formula-text">IBW nach Devine: Männlich = 50 + 0,91 × (Größe [cm] − 152,4); Weiblich = 45,5 + 0,91 × (Größe [cm] − 152,4).</span></p>
+    <p><span class="dot ibw"></span><span class="formula-text">AdjBW = IBW + 0,4 × (aktuelles Gewicht − IBW)</span></p>
+    <p><span class="dot lbw"></span><span class="formula-text">LBW nach Janmahasatian: Männlich = 9270 × Gewicht ÷ (6680 + 216 × BMI); Weiblich = 9270 × Gewicht ÷ (8780 + 244 × BMI); BMI = Gewicht [kg] ÷ Größe [m]²</span></p>
+    <p><span class="dot lbw"></span><span class="formula-text">BSA nach Mosteller = √(Größe [cm] × Gewicht [kg] ÷ 3600)</span></p>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Hinweis:</strong> Alle Ergebnisse dienen nur als Rechenhilfe und ersetzen keine ärztliche Beurteilung. Bitte Eingaben und Ergebnis vor der Verwendung plausibilisieren.
+  </div>
+
+  <footer>
+    Diese Seite speichert und verschickt keine Eingaben – alle Berechnungen laufen nur auf diesem Gerät ab.
+  </footer>
+
+</div>
+
+<script>
+  function fmt(num, decimals) {
+    if (!isFinite(num)) return null;
+    return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  const sexInput = document.getElementById('sex-input');
+  const heightInput = document.getElementById('height-input');
+  const weightInput = document.getElementById('weight-input');
+  const ibwOutput = document.getElementById('ibw-output');
+  const adjOutput = document.getElementById('adj-output');
+  const lbwOutput = document.getElementById('lbw-output');
+  const bsaOutput = document.getElementById('bsa-output');
+
+  const ADJ_FACTOR = 0.4;
+
+  function calc() {
+    const male = sexInput.value === 'male';
+    const h = parseFloat(heightInput.value);
+    const w = parseFloat(weightInput.value);
+    const hOk = !isNaN(h) && h > 0;
+    const wOk = !isNaN(w) && w > 0;
+
+    ibwOutput.textContent = '– kg';
+    adjOutput.textContent = '– kg';
+    lbwOutput.textContent = '– kg';
+    bsaOutput.textContent = '– m²';
+
+    let ibw = NaN;
+    if (hOk) {
+      ibw = (male ? 50 : 45.5) + 0.91 * (h - 152.4);
+      if (ibw <= 0) ibw = NaN;
+      if (!isNaN(ibw)) ibwOutput.textContent = fmt(ibw, 1) + ' kg';
+    }
+
+    if (hOk && wOk) {
+      if (!isNaN(ibw)) {
+        const adj = ibw + ADJ_FACTOR * (w - ibw);
+        adjOutput.textContent = fmt(adj, 1) + ' kg';
+      }
+
+      const hm = h / 100;
+      const bmi = w / (hm * hm);
+      const lbw = male
+        ? (9270 * w) / (6680 + 216 * bmi)
+        : (9270 * w) / (8780 + 244 * bmi);
+      lbwOutput.textContent = fmt(lbw, 1) + ' kg';
+
+      const bsa = Math.sqrt((h * w) / 3600);
+      bsaOutput.textContent = fmt(bsa, 2) + ' m²';
+    }
+  }
+
+  sexInput.addEventListener('change', calc);
+  heightInput.addEventListener('input', calc);
+  weightInput.addEventListener('input', calc);
+
+  // Alle Felder zurücksetzen
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    sexInput.selectedIndex = 0;
+    heightInput.value = '';
+    weightInput.value = '';
+    calc();
+  });
+</script>
+
+</body>
+</html>
